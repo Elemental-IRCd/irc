@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	VERSION = "go-ircevent v2.1"
+	VERSION = "Elemental-IRCd irc package 0.1"
 )
 
 var ErrDisconnected = errors.New("Disconnect Called")
