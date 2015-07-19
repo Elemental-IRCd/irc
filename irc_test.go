@@ -1,7 +1,6 @@
 package irc
 
 import (
-	//	"github.com/thoj/go-ircevent"
 	"crypto/tls"
 	"testing"
 	"time"
@@ -14,15 +13,15 @@ func TestConnection(t *testing.T) {
 	irccon2 := IRC("go-eventirc2", "go-eventirc2")
 	irccon2.VerboseCallbackHandler = true
 	irccon2.Debug = true
-	err := irccon1.Connect("irc.freenode.net:6667")
+	err := irccon1.Connect("irc.yolo-swag.com:6667")
 	if err != nil {
 		t.Log(err.Error())
-		t.Fatal("Can't connect to freenode.")
+		t.Fatal("Can't connect to ShadowNET.")
 	}
-	err = irccon2.Connect("irc.freenode.net:6667")
+	err = irccon2.Connect("irc.yolo-swag.com:6667")
 	if err != nil {
 		t.Log(err.Error())
-		t.Fatal("Can't connect to freenode.")
+		t.Fatal("Can't connect to ShadowNET.")
 	}
 	irccon1.AddCallback("001", func(e *Event) { irccon1.Join("#go-eventirc") })
 	irccon2.AddCallback("001", func(e *Event) { irccon2.Join("#go-eventirc") })
@@ -71,10 +70,10 @@ func TestConnectionSSL(t *testing.T) {
 	irccon.Debug = true
 	irccon.UseTLS = true
 	irccon.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-	err := irccon.Connect("irc.freenode.net:7000")
+	err := irccon.Connect("irc.yolo-swag.com:6697")
 	if err != nil {
 		t.Log(err.Error())
-		t.Fatal("Can't connect to freenode.")
+		t.Fatal("Can't connect to ShadowNET.")
 	}
 	irccon.AddCallback("001", func(e *Event) { irccon.Join("#go-eventirc") })
 
@@ -113,7 +112,7 @@ func TestConnectionMissingHost(t *testing.T) {
 
 func TestConnectionMissingPort(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
-	err := irccon.Connect("chat.freenode.net:")
+	err := irccon.Connect("irc.yolo-swag.com:")
 	if err == nil {
 		t.Fatal("missing port not detected")
 	}
@@ -121,7 +120,7 @@ func TestConnectionMissingPort(t *testing.T) {
 
 func TestConnectionNegativePort(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
-	err := irccon.Connect("chat.freenode.net:-1")
+	err := irccon.Connect("irc.yolo-swag.com:-1")
 	if err == nil {
 		t.Fatal("negative port number not detected")
 	}
@@ -129,7 +128,7 @@ func TestConnectionNegativePort(t *testing.T) {
 
 func TestConnectionTooLargePort(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
-	err := irccon.Connect("chat.freenode.net:65536")
+	err := irccon.Connect("irc.yolo-swag.com:65536")
 	if err == nil {
 		t.Fatal("too large port number not detected")
 	}
@@ -138,7 +137,7 @@ func TestConnectionTooLargePort(t *testing.T) {
 func TestConnectionMissingLog(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
 	irccon.Log = nil
-	err := irccon.Connect("chat.freenode.net:6667")
+	err := irccon.Connect("irc.yolo-swag.com:6667")
 	if err == nil {
 		t.Fatal("missing 'Log' not detected")
 	}
@@ -148,7 +147,7 @@ func TestConnectionEmptyUser(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
 	// user may be changed after creation
 	irccon.user = ""
-	err := irccon.Connect("chat.freenode.net:6667")
+	err := irccon.Connect("irc.yolo-swag.com:6667")
 	if err == nil {
 		t.Fatal("empty 'user' not detected")
 	}
@@ -158,7 +157,7 @@ func TestConnectionEmptyNick(t *testing.T) {
 	irccon := IRC("go-eventirc", "go-eventirc")
 	// nick may be changed after creation
 	irccon.nick = ""
-	err := irccon.Connect("chat.freenode.net:6667")
+	err := irccon.Connect("irc.yolo-swag.com:6667")
 	if err == nil {
 		t.Fatal("empty 'nick' not detected")
 	}
