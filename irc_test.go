@@ -7,10 +7,10 @@ import (
 )
 
 func TestConnection(t *testing.T) {
-	irccon1 := IRC("go-eventirc1", "go-eventirc1")
+	irccon1 := New("go-eventirc1", "go-eventirc1")
 	irccon1.VerboseCallbackHandler = true
 	irccon1.Debug = true
-	irccon2 := IRC("go-eventirc2", "go-eventirc2")
+	irccon2 := New("go-eventirc2", "go-eventirc2")
 	irccon2.VerboseCallbackHandler = true
 	irccon2.Debug = true
 	err := irccon1.Connect("irc.yolo-swag.com:6667")
@@ -65,7 +65,7 @@ func TestConnection(t *testing.T) {
 }
 
 func TestConnectionSSL(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	irccon.VerboseCallbackHandler = true
 	irccon.Debug = true
 	irccon.UseTLS = true
@@ -87,7 +87,7 @@ func TestConnectionSSL(t *testing.T) {
 }
 
 func TestConnectionEmtpyServer(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect("")
 	if err == nil {
 		t.Fatal("emtpy server string not detected")
@@ -95,7 +95,7 @@ func TestConnectionEmtpyServer(t *testing.T) {
 }
 
 func TestConnectionDoubleColon(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect("::")
 	if err == nil {
 		t.Fatal("wrong number of ':' not detected")
@@ -103,7 +103,7 @@ func TestConnectionDoubleColon(t *testing.T) {
 }
 
 func TestConnectionMissingHost(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect(":6667")
 	if err == nil {
 		t.Fatal("missing host not detected")
@@ -111,7 +111,7 @@ func TestConnectionMissingHost(t *testing.T) {
 }
 
 func TestConnectionMissingPort(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect("irc.yolo-swag.com:")
 	if err == nil {
 		t.Fatal("missing port not detected")
@@ -119,7 +119,7 @@ func TestConnectionMissingPort(t *testing.T) {
 }
 
 func TestConnectionNegativePort(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect("irc.yolo-swag.com:-1")
 	if err == nil {
 		t.Fatal("negative port number not detected")
@@ -127,7 +127,7 @@ func TestConnectionNegativePort(t *testing.T) {
 }
 
 func TestConnectionTooLargePort(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	err := irccon.Connect("irc.yolo-swag.com:65536")
 	if err == nil {
 		t.Fatal("too large port number not detected")
@@ -135,7 +135,7 @@ func TestConnectionTooLargePort(t *testing.T) {
 }
 
 func TestConnectionMissingLog(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	irccon.Log = nil
 	err := irccon.Connect("irc.yolo-swag.com:6667")
 	if err == nil {
@@ -144,7 +144,7 @@ func TestConnectionMissingLog(t *testing.T) {
 }
 
 func TestConnectionEmptyUser(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	// user may be changed after creation
 	irccon.user = ""
 	err := irccon.Connect("irc.yolo-swag.com:6667")
@@ -154,7 +154,7 @@ func TestConnectionEmptyUser(t *testing.T) {
 }
 
 func TestConnectionEmptyNick(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	// nick may be changed after creation
 	irccon.nick = ""
 	err := irccon.Connect("irc.yolo-swag.com:6667")
@@ -164,7 +164,7 @@ func TestConnectionEmptyNick(t *testing.T) {
 }
 
 func TestRemoveCallback(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	irccon.VerboseCallbackHandler = true
 	irccon.Debug = true
 
@@ -192,7 +192,7 @@ func TestRemoveCallback(t *testing.T) {
 }
 
 func TestWildcardCallback(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	irccon.VerboseCallbackHandler = true
 	irccon.Debug = true
 
@@ -216,7 +216,7 @@ func TestWildcardCallback(t *testing.T) {
 }
 
 func TestClearCallback(t *testing.T) {
-	irccon := IRC("go-eventirc", "go-eventirc")
+	irccon := New("go-eventirc", "go-eventirc")
 	irccon.VerboseCallbackHandler = true
 	irccon.Debug = true
 
@@ -242,8 +242,8 @@ func TestClearCallback(t *testing.T) {
 	}
 }
 
-func TestIRCemptyNick(t *testing.T) {
-	irccon := IRC("", "go-eventirc")
+func TestNewemptyNick(t *testing.T) {
+	irccon := New("", "go-eventirc")
 	irccon = nil
 	if irccon != nil {
 		t.Error("empty nick didn't result in error")
@@ -251,8 +251,8 @@ func TestIRCemptyNick(t *testing.T) {
 	}
 }
 
-func TestIRCemptyUser(t *testing.T) {
-	irccon := IRC("go-eventirc", "")
+func TestNewemptyUser(t *testing.T) {
+	irccon := New("go-eventirc", "")
 	if irccon != nil {
 		t.Error("empty user didn't result in error")
 	}
