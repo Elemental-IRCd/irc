@@ -33,7 +33,7 @@ func TestConnection(t *testing.T) {
 			<-t.C
 			irccon1.Privmsgf("#go-eventirc", "Test Message%d\n", i)
 			if con2ok {
-				i -= 1
+				i--
 			}
 			if i == 0 {
 				t.Stop()

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Register a callback to a connection and event code. A callback is a function
+// AddCallback registers a callback to a connection and event code. A callback is a function
 // which takes only an Event pointer as parameter. Valid event codes are all
 // IRC/CTCP commands and error/response codes. This function returns the ID of
 // the registered callback for later management.
@@ -21,14 +21,14 @@ func (irc *Connection) AddCallback(eventcode string, callback func(*Event)) stri
 		irc.events[eventcode] = make(map[string]func(*Event))
 	}
 	h := sha1.New()
-	rawId := []byte(fmt.Sprintf("%v%d", reflect.ValueOf(callback).Pointer(), rand.Int63()))
-	h.Write(rawId)
+	rawID := []byte(fmt.Sprintf("%v%d", reflect.ValueOf(callback).Pointer(), rand.Int63()))
+	h.Write(rawID)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 	irc.events[eventcode][id] = callback
 	return id
 }
 
-// Remove callback i (ID) from the given event code. This functions returns
+// RemoveCallback removes callback i (ID) from the given event code. This functions returns
 // true upon success, false if any error occurs.
 func (irc *Connection) RemoveCallback(eventcode string, i string) bool {
 	eventcode = strings.ToUpper(eventcode)
@@ -46,7 +46,7 @@ func (irc *Connection) RemoveCallback(eventcode string, i string) bool {
 	return false
 }
 
-// Remove all callbacks from a given event code. It returns true
+// ClearCallback removes all callbacks from a given event code. It returns true
 // if given event code is found and cleared.
 func (irc *Connection) ClearCallback(eventcode string) bool {
 	eventcode = strings.ToUpper(eventcode)
@@ -60,7 +60,7 @@ func (irc *Connection) ClearCallback(eventcode string) bool {
 	return false
 }
 
-// Replace callback i (ID) associated with a given event code with a new callback function.
+// ReplaceCallback replaces callback i (ID) associated with a given event code with a new callback function.
 func (irc *Connection) ReplaceCallback(eventcode string, i string, callback func(*Event)) {
 	eventcode = strings.ToUpper(eventcode)
 
@@ -74,7 +74,7 @@ func (irc *Connection) ReplaceCallback(eventcode string, i string, callback func
 	irc.Log.Printf("Event not found. Use AddCallBack\n")
 }
 
-// Execute all callbacks associated with a given event.
+// RunCallbacks executes all callbacks associated with a given event.
 func (irc *Connection) RunCallbacks(event *Event) {
 	msg := event.Message()
 	if event.Code == "PRIVMSG" && len(msg) > 0 && msg[0] == '\x01' {
@@ -161,14 +161,14 @@ func (irc *Connection) setupCallbacks() {
 	irc.AddCallback("CTCP_PING", func(e *Event) { irc.SendRawf("NOTICE %s :\x01%s\x01", e.Nick, e.Message()) })
 
 	// 437: ERR_UNAVAILRESOURCE "<nick/channel> :Nick/channel is temporarily unavailable"
-        // Add a _ to current nick. If irc.nickcurrent is empty this cannot
-        // work. It has to be set somewhere first in case the nick is already
-        // taken or unavailable from the beginning.
-        irc.AddCallback("437", func(e *Event) {
-                // If irc.nickcurrent hasn't been set yet, set to irc.nick
-                if irc.nickcurrent == "" {
-                        irc.nickcurrent = irc.nick
-                }
+	// Add a _ to current nick. If irc.nickcurrent is empty this cannot
+	// work. It has to be set somewhere first in case the nick is already
+	// taken or unavailable from the beginning.
+	irc.AddCallback("437", func(e *Event) {
+		// If irc.nickcurrent hasn't been set yet, set to irc.nick
+		if irc.nickcurrent == "" {
+			irc.nickcurrent = irc.nick
+		}
 
 		if len(irc.nickcurrent) > 8 {
 			irc.nickcurrent = "_" + irc.nickcurrent
@@ -181,10 +181,10 @@ func (irc *Connection) setupCallbacks() {
 	// 433: ERR_NICKNAMEINUSE "<nick> :Nickname is already in use"
 	// Add a _ to current nick.
 	irc.AddCallback("433", func(e *Event) {
-                // If irc.nickcurrent hasn't been set yet, set to irc.nick
-                if irc.nickcurrent == "" {
-                        irc.nickcurrent = irc.nick
-                }
+		// If irc.nickcurrent hasn't been set yet, set to irc.nick
+		if irc.nickcurrent == "" {
+			irc.nickcurrent = irc.nick
+		}
 
 		if len(irc.nickcurrent) > 8 {
 			irc.nickcurrent = "_" + irc.nickcurrent

@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// Connection is a single IRC connection to a remote server.
 type Connection struct {
 	sync.WaitGroup
 	Debug     bool
@@ -23,7 +24,7 @@ type Connection struct {
 	Timeout   time.Duration
 	PingFreq  time.Duration
 	KeepAlive time.Duration
-	Server      string
+	Server    string
 
 	socket net.Conn
 	pwrite chan string
@@ -43,7 +44,7 @@ type Connection struct {
 	stopped bool
 }
 
-// A struct to represent an event.
+// Event is a struct to represent an event.
 type Event struct {
 	Code       string
 	Raw        string
@@ -55,8 +56,8 @@ type Event struct {
 	Connection *Connection
 }
 
-// Retrieve the last message from Event arguments.
-// This function  leaves the arguments untouched and
+// Message retrieves the last message from Event arguments.
+// This function leaves the arguments untouched and
 // returns an empty string if there are none.
 func (e *Event) Message() string {
 	if len(e.Arguments) == 0 {

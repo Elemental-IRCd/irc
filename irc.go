@@ -31,10 +31,12 @@ import (
 	"time"
 )
 
+// The CTCP-VERSION reply that clients using this package will return.
 const (
 	VERSION = "Elemental-IRCd irc package 0.1"
 )
 
+// This is thrown when another goroutine calls Disconnect.
 var ErrDisconnected = errors.New("Disconnect Called")
 
 // Read data from a connection. To be used as a goroutine.
@@ -104,7 +106,6 @@ func (irc *Connection) readLoop() {
 			irc.RunCallbacks(event)
 		}
 	}
-	return
 }
 
 // Loop to write to a connection. To be used as a goroutine.
@@ -140,7 +141,6 @@ func (irc *Connection) writeLoop() {
 			}
 		}
 	}
-	return
 }
 
 // Pings the server if we have not received any messages for 5 minutes
@@ -172,7 +172,7 @@ func (irc *Connection) pingLoop() {
 	}
 }
 
-// Main loop to control the connection.
+// Loop is the main loop to control the connection.
 func (irc *Connection) Loop() {
 	errChan := irc.ErrorChan()
 	for !irc.stopped {
@@ -199,87 +199,88 @@ func (irc *Connection) Quit() {
 	irc.stopped = true
 }
 
-// Use the connection to join a given channel.
+// Join uses the connection to join a given channel.
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.2.1
 func (irc *Connection) Join(channel string) {
 	irc.pwrite <- fmt.Sprintf("JOIN %s\r\n", channel)
 }
 
-// Leave a given channel.
+// Part leaves a given channel.
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.2.2
 func (irc *Connection) Part(channel string) {
 	irc.pwrite <- fmt.Sprintf("PART %s\r\n", channel)
 }
 
-// Send a notification to a nickname. This is similar to Privmsg but must not receive replies.
+// Notice send a notification to a nickname or channel. This is similar to Privmsg but must not receive replies.
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.4.2
 func (irc *Connection) Notice(target, message string) {
 	irc.pwrite <- fmt.Sprintf("NOTICE %s :%s\r\n", target, message)
 }
 
-// Send a formated notification to a nickname.
+// Noticef sends a formated notification to a nickname or channel.
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.4.2
 func (irc *Connection) Noticef(target, format string, a ...interface{}) {
 	irc.Notice(target, fmt.Sprintf(format, a...))
 }
 
-// Send (action) message to a target (channel or nickname).
+// Action sends a CTCP-ACTION (/me) message to a target (channel or nickname).
 // No clear RFC on this one...
 func (irc *Connection) Action(target, message string) {
 	irc.pwrite <- fmt.Sprintf("PRIVMSG %s :\001ACTION %s\001\r\n", target, message)
 }
 
-// Send formatted (action) message to a target (channel or nickname).
+// Actionf sends a CTCP-ACTION (/me) to a target (channel or nickname).
 func (irc *Connection) Actionf(target, format string, a ...interface{}) {
 	irc.Action(target, fmt.Sprintf(format, a...))
 }
 
-// Send (private) message to a target (channel or nickname).
+// Privmsg sends a message to a target (channel or nickname).
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.4.1
 func (irc *Connection) Privmsg(target, message string) {
 	irc.pwrite <- fmt.Sprintf("PRIVMSG %s :%s\r\n", target, message)
 }
 
-// Send formated string to specified target (channel or nickname).
+// Privmsgf sends a formatted message to a specified target (channel or nickname).
 func (irc *Connection) Privmsgf(target, format string, a ...interface{}) {
 	irc.Privmsg(target, fmt.Sprintf(format, a...))
 }
 
-// Send raw string.
+// SendRaw sends a raw message across the wire.
 func (irc *Connection) SendRaw(message string) {
 	irc.pwrite <- message + "\r\n"
 }
 
-// Send raw formated string.
+// SendRawf sends a formatted raw message across the wire.
 func (irc *Connection) SendRawf(format string, a ...interface{}) {
 	irc.SendRaw(fmt.Sprintf(format, a...))
 }
 
-// Set (new) nickname.
+// Nick changes the client nickname to the given value. This may fail, causing the server to return
+// ERR_NICKNAMEINUSE or ERR_ERRONEUSNICKNAME.
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.1.2
 func (irc *Connection) Nick(n string) {
 	irc.nick = n
 	irc.SendRawf("NICK %s", n)
 }
 
-// Determine nick currently used with the connection.
+// GetNick returns the nickname in use by the client.
 func (irc *Connection) GetNick() string {
 	return irc.nickcurrent
 }
 
-// Query information about a particular nickname.
+// Whois fetches information about a given client.
 // RFC 1459: https://tools.ietf.org/html/rfc1459#section-4.5.2
 func (irc *Connection) Whois(nick string) {
-	irc.SendRawf("WHOIS %s", nick)
+	irc.SendRawf("WHOIS %s %s", nick, nick)
 }
 
-// Query information about a given nickname in the server.
+// Who fetches detailed information about a given target (nick or channel).
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.5.1
-func (irc *Connection) Who(nick string) {
-	irc.SendRawf("WHO %s", nick)
+func (irc *Connection) Who(target string) {
+	irc.SendRawf("WHO %s", target)
 }
 
-// Set different modes for a target (channel or nickname).
+// Mode sets different modes for a target (channel or nickname).
 // RFC 1459 details: https://tools.ietf.org/html/rfc1459#section-4.2.3
 func (irc *Connection) Mode(target string, modestring ...string) {
 	if len(modestring) > 0 {
@@ -290,16 +291,17 @@ func (irc *Connection) Mode(target string, modestring ...string) {
 	irc.SendRawf("MODE %s", target)
 }
 
+// ErrorChan returns the connections error channel.
 func (irc *Connection) ErrorChan() chan error {
 	return irc.Error
 }
 
-// Returns true if the connection is connected to an IRC server.
+// Connected returns true if the connection is connected to an IRC server.
 func (irc *Connection) Connected() bool {
 	return !irc.stopped
 }
 
-// A disconnect sends all buffered messages (if possible),
+// Disconnect sends all buffered messages (if possible),
 // stops all goroutines and then closes the socket.
 func (irc *Connection) Disconnect() {
 	for event := range irc.events {
@@ -385,7 +387,7 @@ func (irc *Connection) Connect(server string) error {
 	return nil
 }
 
-// Create a connection with the (publicly visible) nickname and username.
+// New creates a connection with the (publicly visible) nickname and username.
 // The nickname is later used to address the user. Returns nil if nick
 // or user are empty.
 func New(nick, user string) *Connection {
