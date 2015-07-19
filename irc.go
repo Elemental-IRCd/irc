@@ -81,10 +81,10 @@ func (irc *Connection) readLoop() {
 			if msg[0] == ':' {
 				if i := strings.Index(msg, " "); i > -1 {
 					event.Source = msg[1:i]
-					msg = msg[i+1 : len(msg)]
+					msg = msg[i+1:]
 
 				} else {
-					irc.Log.Printf("Misformed msg from server: %#s\n", msg)
+					irc.Log.Printf("Misformed msg from server: %s\n", msg)
 				}
 
 				if i, j := strings.Index(event.Source, "!"), strings.Index(event.Source, "@"); i > -1 && j > -1 {
