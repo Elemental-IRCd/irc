@@ -19,7 +19,10 @@ Usage example:
 			bot.Join("#irc")
 		})
 
-		bot.Connect("irc.ponychat.net:6697")
+		err := bot.Connect("irc.ponychat.net:6697")
+		if err != nil {
+			panic(err)
+		}
 
 		bot.Loop()
 	}
